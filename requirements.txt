@@ -1,0 +1,2 @@
+polidoro_terminal<=1.0
+python_dateutil==2.8.2
