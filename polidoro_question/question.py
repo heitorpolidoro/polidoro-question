@@ -8,7 +8,8 @@ from polidoro_terminal.manipulation import clear_to_end_of_screen, move_right, m
 
 
 class Question:
-    def __init__(self, question, type=str, default=None, options=None, options_alias=None, auto_complete=False):
+    # noinspection PyShadowingBuiltins
+    def __init__(self, question, type=str, default=None, options=None, auto_complete=False):
         self.question = question
         self.type = type
         self.use_getch = False
@@ -21,8 +22,10 @@ class Question:
 
         self.auto_complete = auto_complete
 
-        self.options_alias = options_alias or {}
-        if not auto_complete:
+        if auto_complete:
+            if not self.options:
+                raise ValueError('To use auto-complete mode must have options')
+        else:
             self._define_options_alias()
 
     def ask(self):
@@ -31,7 +34,7 @@ class Question:
         print_answer = False
         prompt = f'{self.question}{extra_info}: '
         if self.auto_complete:
-            resp = self.auto_complete_ask(prompt)
+            resp = self._auto_complete_ask(prompt)
         else:
             if self.use_getch:
                 print_answer = True
@@ -44,23 +47,21 @@ class Question:
             if not resp:
                 resp = self.default
 
-            if resp is not None:
-                resp = self.options_alias.get(resp, resp)
-        if print_answer:
-            print(resp)
-
         if resp is None:
             return
         if isinstance(resp, str):
-            resp = self.options_alias.get(resp.upper(), self.options_alias.get(resp.lower(), resp))
+            resp = self._options_alias.get(resp, resp)
             resp = self.translated_options.get(resp, resp)
             if self.type in [int, float]:
                 return self.type(resp)
             if self.type in [datetime.date]:
                 return dateutil.parser.parse(resp)
+        if print_answer:
+            print(resp)
+
         return resp
 
-    def auto_complete_ask(self, prompt):
+    def _auto_complete_ask(self, prompt):
         options = self.options
         options_filter = ''
         resp = None
@@ -93,9 +94,9 @@ class Question:
     def _build_extra_info(self):
         extra_info = ''
         options = self.options
-        if self.options_alias:
+        if self._options_alias:
             options = []
-            for alias, option in self.options_alias.items():
+            for alias, option in self._options_alias.items():
                 options.append(option.replace(alias, f'{Format.UNDERLINE}{alias}{Format.NORMAL}', 1))
         if options and not self.auto_complete:
             extra_info = f'[{"/".join(o.upper() if o == self.default else o for o in options)}]'
@@ -135,4 +136,4 @@ class Question:
                     except IndexError:
                         raise ValueError(f'Cannot automatically determinate an alias for {o}: {alias}')
 
-        self.options_alias = alias
+        self._options_alias = alias
