@@ -13,7 +13,22 @@
 ![GitHub](https://img.shields.io/github/license/heitorpolidoro/polidoro-question)
 ### To install
 
-```
+```shell
 sudo apt install python3-pip -y
 pip3 install polidoro_question
 ```
+Retrieve input from terminal user input.
+
+```python
+from polidoro_question import Question
+resp = Question('Your question here').ask()
+```
+
+#### Parameters
+`question`: The text to show to the user.
+`type`: The type to convert the answer.
+`default`: Default value of the question.
+`options`: List of options to choose.
+`auto_complete`: To use auto-complete mode.
+In auto-complete mode will show all the options in a list, the user can either type to filter or choose 
+a number to select the option
