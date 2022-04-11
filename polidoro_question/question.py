@@ -2,32 +2,14 @@ import datetime
 import re
 
 import dateutil.parser
-from functools import lru_cache
-
 from polidoro_terminal import Format, getch, up_lines
 from polidoro_terminal.getch import Key
 from polidoro_terminal.manipulation import clear_to_end_of_screen, move_right, move_left
 
-try:
-    import i18n
-    import locale
-
-    @lru_cache
-    def _(text):
-        return i18n.t(text)
-    lc, encoding = locale.getdefaultlocale()
-
-    i18n.set('locale', lc)
-    i18n.set('filename_format', '{locale}.{format}')
-    i18n.load_path.append('locale')
-except ImportError:
-    _ = str
-
 
 class Question:
-    def __init__(self, question, type=str, default=None, options=None, options_alias=None, auto_complete=False,
-                 **kwargs):
-        self.question = _(question)
+    def __init__(self, question, type=str, default=None, options=None, options_alias=None, auto_complete=False):
+        self.question = question
         self.type = type
         self.use_getch = False
 
@@ -123,14 +105,14 @@ class Question:
 
     def _normalize_options(self):
         if self.type == bool:
-            self.options = [_('y'), _('n')]
-            self.default = _('y' if self.default else 'n')
-            self.translated_options = {_('y'): True, _('n'): False}
+            self.options = ['y', 'n']
+            self.default = 'y' if self.default else 'n'
+            self.translated_options = {'y': True, 'n': False}
         elif self.options is not None:
             if isinstance(self.options, list):
                 normalized_options = []
                 for o in self.options:
-                    option = _(str(o))
+                    option = str(o)
                     self.translated_options[option] = o
                     normalized_options.append(option)
                 self.options = normalized_options
@@ -154,4 +136,3 @@ class Question:
                         raise ValueError(f'Cannot automatically determinate an alias for {o}: {alias}')
 
         self.options_alias = alias
-
