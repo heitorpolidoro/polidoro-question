@@ -17,6 +17,7 @@ class Question:
         self.default = default
 
         self.options = options
+        self._options_alias = {}
         self.translated_options = {}
         self._normalize_options()
 
