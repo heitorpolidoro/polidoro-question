@@ -23,7 +23,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     zip_safe=False,
-    install_requires=['polidoro_terminal<=1.0'
+    install_requires=['polidoro_terminal<=1.0',
                       'python_dateutil==2.8.2'],
     include_package_data=True
 )
